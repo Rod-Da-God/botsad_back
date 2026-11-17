@@ -5,24 +5,42 @@ venv
 .venv
 __pycache__
 *.pyc
+*.pyo
+*.egg-info
 .git
 .gitignore
-*.egg-info
+
+# Caches
 .pytest_cache
 .mypy_cache
-.ruff_cache/
-.env.test
+.ruff_cache
+.cache
+.coverage
+.coverage.*
+htmlcov
+
+# Tests
+tests/
+pytest.ini
+conftest.py
+
+# Logs / local data
+*.log
+postgres_data/
+redis_data/
+
+# Docker / repo files
+docker-compose*.yaml
+Dockerfile*
+.dockerignore
+README.md
+LICENSE
+CHANGELOG.md
 
 # IDE / RepoFiles
 .github/
 .vscode/
 .idea/
-README.md
-LICENSE
-CHANGELOG.md
-docker-compose*
-Dockerfile*
-.dockerignore
 
 # IDE temp files
 *.swp
@@ -32,15 +50,6 @@ Dockerfile*
 # Pre-commit
 .pre-commit-config.yaml
 .pre-commit-hooks.yaml
-pyproject.toml
-
-# Test-specific
-conftest.py
-tests/
-pytest.ini
-.coverage
-htmlcov/
-.coverage.*
 
 # Agents
 AGENTS.md

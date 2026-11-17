@@ -10,12 +10,32 @@ from loguru import logger
 
 from config import settings
 from config.log_trace import add_trace_id
+from config.path import ENV_FILE
 
-libs_to_mute: list[str] = []
+
+libs_to_mute: list[str] = [
+    "botocore",
+    "boto3",
+    "aiobotocore",
+    "urllib3",
+    "python_multipart.multipart",
+    "httpx",
+    "httpx._client",
+    "httpx._config",
+    "httpcore",
+    "httpcore._trace",
+    "httpcore.connection",
+    "httpcore.http11",
+    "httpcore.proxy",
+    "httpcore._sync",
+    "httpcore._async",
+]
 
 
 def mute_loggers(
-    names: list[str], level: int = logging.CRITICAL, clear_handlers: bool = True
+    names: list[str],
+    level: int = logging.CRITICAL,
+    clear_handlers: bool = True,
 ):
     """
     Красиво и централизованно заглушает логи указанных библиотек.
@@ -32,7 +52,7 @@ def mute_loggers(
             logger_obj.handlers.clear()
 
 
-load_dotenv()
+load_dotenv(ENV_FILE)
 
 
 def format_exception_with_filtered_traceback(
@@ -68,7 +88,9 @@ def format_exception_with_filtered_traceback(
         try:
             rel_path = file_path.relative_to(project_root)
             rel_str = str(rel_path).lower()
-            first_part = rel_str.split(os.sep)[0] if os.sep in rel_str else rel_str
+            first_part = (
+                rel_str.split(os.sep)[0] if os.sep in rel_str else rel_str
+            )
             if first_part in exclude_starts:
                 continue
             filtered_frames.append(frame)
@@ -146,7 +168,9 @@ class InterceptHandler(logging.Handler):
 
         logger.opt(depth=depth).log(level, message)
         if record.levelno >= logging.CRITICAL:
-            logger.error("CRITICAL error detected — shutting down application.")
+            logger.error(
+                "CRITICAL error detected — shutting down application."
+            )
             logger.complete()
             time.sleep(0.1)
             sys.exit(1)
@@ -154,7 +178,7 @@ class InterceptHandler(logging.Handler):
 
 def setup_logging():
     """
-    Настраивает систему логирования с автоматическим форматированием трейсбеков.
+    Настраивает логирование с форматированием трейсбеков.
     """
 
     log_format = (
@@ -184,4 +208,19 @@ def setup_logging():
             enqueue=True,
             colorize=True,
         )
+
+    # Файловый вывод
+    if settings.logger.log_to_file:
+        logger.add(
+            settings.logger.log_file,
+            format=log_format,
+            level=settings.logger.log_level,
+            rotation=settings.logger.log_rotation,
+            retention=settings.logger.log_retention,
+            compression=settings.logger.log_compression,
+            backtrace=False,
+            diagnose=False,
+            enqueue=True,
+        )
+
     mute_loggers(libs_to_mute)

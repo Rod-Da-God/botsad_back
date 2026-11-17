@@ -3,6 +3,7 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -27,7 +28,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(
             status_code=500,
             content={
-                "error": str(exc),
+                "error": "Internal server error",
                 "type": exc.__class__.__name__,
             },
         )
